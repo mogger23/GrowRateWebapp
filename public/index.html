@@ -1,0 +1,517 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Describer - Onboarding</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Poppins:wght@400;600&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Poppins', sans-serif; /* Updated Font */
+            background-color: #121212; /* Darker Background for Modern Look */
+            color: #FFFFFF; /* White Text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            background-color: #1E1E1E; /* Slightly Lighter Black for Contrast */
+            padding: 60px 40px 40px 40px;
+            border-radius: 20px;
+            max-width: 500px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.5); /* Deeper Shadow for Depth */
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Back Arrow */
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.8rem;
+            cursor: pointer;
+            transition: color 0.3s, transform 0.2s;
+            color: #FFFFFF;
+        }
+        .back-arrow:hover {
+            color: #1E90FF; /* Blue on hover */
+            transform: scale(1.2);
+        }
+        /* Progress Bar */
+        .progress-bar {
+            position: absolute;
+            top: 0;
+            left: 0;
+            height: 8px;
+            width: 100%;
+            background: #555555; /* Gray Background */
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            overflow: hidden;
+        }
+        .progress {
+            height: 100%;
+            background: linear-gradient(90deg, #1E90FF, #00BFFF); /* Gradient for Filled Portion */
+            width: 0%;
+            transition: width 0.5s ease;
+        }
+        /* Header (Question Text) */
+        .header {
+            font-size: 1.8rem;
+            margin-bottom: 30px;
+            text-align: center;
+            font-weight: 600;
+            color: #FFFFFF;
+            animation: fadeInDown 0.5s ease forwards;
+        }
+        /* Step Sections */
+        .step {
+            display: none;
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+        }
+        .step.active {
+            display: block;
+        }
+        @keyframes fadeInUp {
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        @keyframes fadeInDown {
+            from {
+                opacity: 0;
+                transform: translateY(-20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        /* Form Groups */
+        .form-group {
+            margin: 20px 0;
+            text-align: center;
+        }
+        /* Option Buttons */
+        .options {
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            align-items: center;
+        }
+        .option-btn {
+            background: linear-gradient(45deg, #1E90FF, #00BFFF);
+            background-size: 200% 200%;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 50px;
+            cursor: pointer;
+            transition: background-position 0.5s, transform 0.2s, box-shadow 0.3s, border 0.3s;
+            width: 100%;
+            max-width: 300px;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+        }
+        .option-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s;
+        }
+        .option-btn:hover::after {
+            left: 100%;
+        }
+        .option-btn.selected {
+            background-position: right center;
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.4);
+            transform: scale(1.05);
+            border: 2px solid #00BFFF; /* Border Highlight */
+        }
+        .option-btn:hover {
+            background-position: right center;
+        }
+        /* Next Button */
+        .next-btn {
+            background: linear-gradient(45deg, #1E90FF, #00BFFF);
+            background-size: 200% 200%;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-position 0.5s, transform 0.2s, box-shadow 0.3s;
+            width: 100%;
+            max-width: 300px;
+            margin-top: 30px;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+        }
+        .next-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s;
+        }
+        .next-btn:hover::after {
+            left: 100%;
+        }
+        .next-btn:hover {
+            background-position: right center;
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.4);
+            transform: scale(1.02);
+        }
+        .next-btn:disabled {
+            background: #555555; /* Gray Background when disabled */
+            cursor: not-allowed;
+            box-shadow: none;
+            transform: scale(1);
+        }
+        .next-btn.selected {
+            background-position: right center;
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.4);
+            transform: scale(1.05);
+        }
+        /* Input Fields for Height and Weight */
+        .input-group {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 10px;
+            margin-top: 10px;
+            flex-wrap: wrap;
+        }
+        .input-group input {
+            background-color: #2C2C2C;
+            border: 2px solid #1E90FF;
+            color: #FFFFFF;
+            padding: 12px 20px;
+            font-size: 1rem;
+            border-radius: 25px;
+            width: 100%;
+            max-width: 180px;
+            outline: none;
+            transition: border-color 0.3s, background-color 0.3s, box-shadow 0.3s;
+        }
+        .input-group input:focus {
+            border-color: #00BFFF;
+            background-color: #3C3C3C;
+            box-shadow: 0 0 10px rgba(30, 144, 255, 0.5);
+        }
+        .unit-label {
+            font-size: 1rem;
+            color: #1E90FF;
+            min-width: 40px;
+            text-align: center;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .header {
+                font-size: 1.5rem;
+            }
+            .option-btn, .next-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            .back-arrow {
+                font-size: 1.4rem;
+            }
+            .input-group input {
+                max-width: 150px;
+            }
+            .unit-label {
+                min-width: 30px;
+                font-size: 0.9rem;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Progress Bar -->
+        <div class="progress-bar">
+            <div class="progress" id="progress"></div>
+        </div>
+
+        <!-- Back Arrow -->
+        <div class="back-arrow" id="back-arrow">&#8592;</div>
+
+        <!-- Step 1: New Question -->
+        <div class="step" id="step-1">
+            <div class="form-group">
+                <div class="header">1. How satisfied are you with your performance and appearance?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="Not-satisfied">Not Satisfied</button>
+                    <button class="option-btn" data-value="Neutral">Neutral</button>
+                    <button class="option-btn" data-value="Satisfied">Satisfied</button>
+                    <button class="option-btn" data-value="Very-satisfied">Very Satisfied</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-1" disabled>Next</button>
+        </div>
+
+        <!-- Step 2 -->
+        <div class="step" id="step-2">
+            <div class="form-group">
+                <div class="header">2. How active are you on a daily basis?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="Lightly-active">Lightly active (sedentary)</button>
+                    <button class="option-btn" data-value="Moderately-active">Moderately active</button>
+                    <button class="option-btn" data-value="Extremely-active">Extremely active</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-2" disabled>Next</button>
+        </div>
+
+        <!-- Step 3 -->
+        <div class="step" id="step-3">
+            <div class="form-group">
+                <div class="header">3. How much time can you commit daily to training?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="20-30mins">20-30 mins</button>
+                    <button class="option-btn" data-value="30-60mins">30-60 mins</button>
+                    <button class="option-btn" data-value="60-90mins">60-90 mins</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-3" disabled>Next</button>
+        </div>
+
+        <!-- Step 4 -->
+        <div class="step" id="step-4">
+            <div class="form-group">
+                <div class="header">4. How many hours of sleep do you typically get each night?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="less-than-6">Less than 6 hours</button>
+                    <button class="option-btn" data-value="6-7hours">6-7 hours</button>
+                    <button class="option-btn" data-value="7-8hours">7-8 hours</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-4" disabled>Next</button>
+        </div>
+
+        <!-- Step 5 -->
+        <div class="step" id="step-5">
+            <div class="form-group">
+                <div class="header">5. What are your specific dietary habits?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="High-protein">High protein</button>
+                    <button class="option-btn" data-value="Vegetarian">Vegetarian</button>
+                    <button class="option-btn" data-value="No-Specific">No specific diet</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-5" disabled>Next</button>
+        </div>
+
+        <!-- Step 6 -->
+        <div class="step" id="step-6">
+            <div class="form-group">
+                <div class="header">6. What’s your main motivation for signing up?</div>
+                <div class="options">
+                    <button class="option-btn" data-value="Improve-confidence">Improve self-confidence</button>
+                    <button class="option-btn" data-value="Enhance-health">Enhance general health</button>
+                    <button class="option-btn" data-value="Improve-relationship">Improve relationship</button>
+                    <button class="option-btn" data-value="Other">Other</button>
+                </div>
+            </div>
+            <button class="next-btn" id="next-6" disabled>Next</button>
+        </div>
+
+        <!-- Step 7 -->
+        <div class="step" id="step-7">
+            <div class="form-group">
+                <div class="header">7. How tall are you?</div>
+                <div class="input-group">
+                    <input type="number" id="height-feet" name="height-feet" min="1" max="9" required placeholder="ft">
+                    <span class="unit-label">ft</span>
+                    <input type="number" id="height-inches" name="height-inches" min="0" max="11" required placeholder="in">
+                    <span class="unit-label">in</span>
+                </div>
+            </div>
+            <button class="next-btn" id="next-7" disabled>Next</button>
+        </div>
+
+        <!-- Step 8 -->
+        <div class="step" id="step-8">
+            <div class="form-group">
+                <div class="header">8. What's your weight?</div>
+                <div class="input-group">
+                    <input type="number" id="weight" name="weight" min="10" max="1000" required placeholder="lbs">
+                    <span class="unit-label">lbs</span>
+                </div>
+            </div>
+            <button class="next-btn" id="next-8" disabled>Get Started</button>
+        </div>
+    </div>
+
+    <script>
+        const progress = document.getElementById('progress');
+        const steps = document.querySelectorAll('.step');
+        const totalSteps = steps.length;
+        let currentStep = 0;
+        const userData = {};
+
+        // Function to show the current step
+        function showStep(step) {
+            steps.forEach((s, index) => {
+                if(index === step){
+                    s.classList.add('active');
+                } else {
+                    s.classList.remove('active');
+                }
+            });
+            // Update progress bar
+            progress.style.width = `${((step) / totalSteps) * 100}%`;
+        }
+
+        // Initialize first step
+        showStep(currentStep);
+
+        // Function to handle option selection
+        function handleOptionSelection(step, value) {
+            userData[`step${step}`] = value;
+            document.getElementById(`next-${step}`).disabled = false;
+        }
+
+        // Attach event listeners for option buttons
+        function attachOptionListeners(step) {
+            const options = document.querySelectorAll(`#step-${step} .option-btn`);
+            options.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    // Remove 'selected' class from all buttons in this step
+                    options.forEach(b => b.classList.remove('selected'));
+                    // Add 'selected' class to clicked button
+                    btn.classList.add('selected');
+                    // Enable Next button
+                    document.getElementById(`next-${step}`).disabled = false;
+                    // Store selected value
+                    userData[`step${step}`] = btn.getAttribute('data-value');
+                });
+            });
+        }
+
+        // Attach event listeners for all option steps (Steps 1 to 6)
+        for (let i = 1; i <= 6; i++) {
+            attachOptionListeners(i);
+        }
+
+        // Event listeners for Next buttons
+        document.getElementById('next-1').addEventListener('click', () => {
+            currentStep = 1;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-2').addEventListener('click', () => {
+            currentStep = 2;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-3').addEventListener('click', () => {
+            currentStep = 3;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-4').addEventListener('click', () => {
+            currentStep = 4;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-5').addEventListener('click', () => {
+            currentStep = 5;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-6').addEventListener('click', () => {
+            currentStep = 6;
+            showStep(currentStep);
+        });
+
+        document.getElementById('next-7').addEventListener('click', () => {
+            const heightFeet = document.getElementById('height-feet').value.trim();
+            const heightInches = document.getElementById('height-inches').value.trim();
+            if (heightFeet && heightInches && heightFeet >=1 && heightFeet <=9 && heightInches >=0 && heightInches <=11) {
+                userData['step7'] = `${heightFeet}ft ${heightInches}in`;
+                currentStep = 7;
+                showStep(currentStep);
+            } else {
+                alert('Please enter a valid height. Feet: 1-9, Inches: 0-11.');
+            }
+        });
+
+        document.getElementById('next-8').addEventListener('click', () => {
+            const weight = document.getElementById('weight').value.trim();
+            if (weight && weight >= 10 && weight <= 1000) {
+                userData['step8'] = weight;
+                // Redirect to index.html with user data as query parameters
+                const params = new URLSearchParams(userData);
+                window.location.href = `upload.html?${params.toString()}`;
+            } else {
+                alert('Please enter a valid weight between 10 lbs and 1000 lbs.');
+            }
+        });
+
+        // Event listener for Back arrow
+        document.getElementById('back-arrow').addEventListener('click', () => {
+            if (currentStep > 0) {
+                currentStep -= 1;
+                showStep(currentStep);
+            }
+        });
+
+        // Event listeners for input fields (Steps 7 and 8)
+        document.getElementById('height-feet').addEventListener('input', validateHeight);
+        document.getElementById('height-inches').addEventListener('input', validateHeight);
+        document.getElementById('weight').addEventListener('input', validateWeight);
+
+        function validateHeight() {
+            const heightFeet = document.getElementById('height-feet').value.trim();
+            const heightInches = document.getElementById('height-inches').value.trim();
+            const nextBtn = document.getElementById('next-7');
+            if (
+                heightFeet && heightInches &&
+                heightFeet >= 1 && heightFeet <= 9 &&
+                heightInches >= 0 && heightInches <= 11
+            ) {
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+            }
+        }
+
+        function validateWeight() {
+            const weight = document.getElementById('weight').value.trim();
+            const nextBtn = document.getElementById('next-8');
+            if (weight && weight >= 10 && weight <= 1000) {
+                nextBtn.disabled = false;
+            } else {
+                nextBtn.disabled = true;
+            }
+        }
+    </script>
+
+</body>
+</html>

@@ -1,0 +1,258 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Daily Routine - AI Image Describer</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif; /* Custom Font */
+            background-color: #000000; /* Pure Black Background */
+            color: #FFFFFF; /* White Text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #1E1E1E; /* Darker Background for Contrast */
+            padding: 40px 30px;
+            border-radius: 15px;
+            max-width: 800px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.2); /* Subtle blue shadow */
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Back Link */
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #1E90FF;
+            text-decoration: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: #1C86EE; /* Slightly Darker Blue on hover */
+        }
+        /* Header */
+        .header {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        /* Tips List */
+        .tips-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .tip-item {
+            background-color: #2C2C2C;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .tip-item:hover {
+            background-color: #1C86EE; /* Slightly Darker Blue on hover */
+            transform: scale(1.02);
+        }
+        .tip-number {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #1E90FF;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #1E1E1E;
+            margin: 10% auto; /* 10% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 80%;
+            max-width: 600px;
+            border-radius: 15px;
+            position: relative;
+            color: #FFFFFF;
+        }
+        /* Close Button */
+        .close-btn {
+            color: #FFFFFF;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-btn:hover {
+            color: #FF6347; /* Tomato color on hover */
+        }
+        /* Modal Titles */
+        .modal-title {
+            font-size: 1.5rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .modal-section {
+            margin-bottom: 15px;
+        }
+        .modal-section-title {
+            font-weight: bold;
+            margin-bottom: 5px;
+            color: #1E90FF;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%;
+                margin: 20% auto;
+            }
+            .header {
+                font-size: 1.5rem;
+            }
+            .tip-item {
+                padding: 10px 15px;
+            }
+            .close-btn {
+                font-size: 1.5rem;
+                top: 5px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Back Link -->
+        <a href="javascript:history.back()" class="back-link">&#8592; Back</a>
+        
+        <div class="header">Daily Routine</div>
+        
+        <ul class="tips-list">
+            <li class="tip-item" data-action="Get At Least 30 Minutes of Morning Sunlight" data-reasoning="Sunlight exposure triggers Vitamin D production, essential for testosterone synthesis. Morning light also helps regulate your circadian rhythm, which can lead to better sleep quality.">
+                <span class="tip-number">1.</span> Get At Least 30 Minutes of Morning Sunlight
+            </li>
+            <li class="tip-item" data-action="Do Compound Strength Training Exercises (3 Times per Week)" data-reasoning="These exercises engage large muscle groups, boosting testosterone and growth hormone levels. Strength training is a powerful stimulus for muscle and hormone development.">
+                <span class="tip-number">2.</span> Do Compound Strength Training Exercises (3 Times per Week)
+            </li>
+            <li class="tip-item" data-action="Practice a Consistent Sleep Schedule" data-reasoning="Consistent, quality sleep is essential for hormone balance. Testosterone levels rise during deep sleep, so better rest contributes to higher baseline levels.">
+                <span class="tip-number">3.</span> Practice a Consistent Sleep Schedule
+            </li>
+            <li class="tip-item" data-action="Increase Intake of Zinc and Magnesium-Rich Foods" data-reasoning="Zinc and magnesium are crucial for testosterone production. Zinc plays a role in sperm production, while magnesium helps in hormone synthesis and muscle function.">
+                <span class="tip-number">4.</span> Increase Intake of Zinc and Magnesium-Rich Foods
+            </li>
+            <li class="tip-item" data-action="Practice Deep Breathing or Meditation for Stress Reduction" data-reasoning="High-stress levels lead to increased cortisol, which can inhibit testosterone production. Reducing stress allows your body to maintain better hormone balance.">
+                <span class="tip-number">5.</span> Practice Deep Breathing or Meditation for Stress Reduction
+            </li>
+            <li class="tip-item" data-action="Drink 2-3 Liters of Water Daily" data-reasoning="Dehydration elevates cortisol and can impact overall energy and metabolic processes, indirectly affecting testosterone. Staying hydrated supports overall bodily function and focus.">
+                <span class="tip-number">6.</span> Drink 2-3 Liters of Water Daily
+            </li>
+            <li class="tip-item" data-action="Eat Healthy Fats Daily" data-reasoning="Cholesterol is a precursor for testosterone production. Healthy fats provide the necessary building blocks for hormones without the drawbacks of processed fats.">
+                <span class="tip-number">7.</span> Eat Healthy Fats Daily
+            </li>
+            <li class="tip-item" data-action="Take Cold Showers (1-3 Minutes)" data-reasoning="Cold exposure can improve blood circulation, especially around reproductive organs, and can lead to a short-term increase in testosterone levels, giving an energy boost as well.">
+                <span class="tip-number">8.</span> Take Cold Showers (1-3 Minutes)
+            </li>
+            <li class="tip-item" data-action="Avoid Processed Sugars and Reduce Alcohol Intake" data-reasoning="Excess sugar causes insulin spikes that can disrupt hormone balance. Alcohol, especially in excess, is associated with lower testosterone and negatively impacts sleep and liver function, both of which are vital for hormone regulation.">
+                <span class="tip-number">9.</span> Avoid Processed Sugars and Reduce Alcohol Intake
+            </li>
+            <li class="tip-item" data-action="Engage in Regular Pelvic Floor Exercises (Kegels)" data-reasoning="Strong pelvic floor muscles can enhance erection quality and control. While Kegels don’t directly impact testosterone, they contribute to overall sexual health and function.">
+                <span class="tip-number">10.</span> Engage in Regular Pelvic Floor Exercises (Kegels)
+            </li>
+        </ul>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="tip-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-title" id="modal-title"></div>
+            <div class="modal-section">
+                <div class="modal-section-title">Action:</div>
+                <div id="modal-action"></div>
+            </div>
+            <div class="modal-section">
+                <div class="modal-section-title">Reasoning:</div>
+                <div id="modal-reasoning"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // Get modal elements
+        const modal = document.getElementById('tip-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalAction = document.getElementById('modal-action');
+        const modalReasoning = document.getElementById('modal-reasoning');
+        const closeBtn = document.querySelector('.close-btn');
+
+        // Function to open modal with specific content
+        function openModal(title, action, reasoning) {
+            modalTitle.textContent = title;
+            modalAction.textContent = action;
+            modalReasoning.textContent = reasoning;
+            modal.style.display = 'block';
+        }
+
+        // Function to close modal
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Add event listeners to all tip items
+        const tipItems = document.querySelectorAll('.tip-item');
+        tipItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const title = item.textContent.trim();
+                const action = item.getAttribute('data-action');
+                const reasoning = item.getAttribute('data-reasoning');
+                openModal(title, action, reasoning);
+            });
+        });
+
+        // When the user clicks on <span> (x), close the modal
+        closeBtn.addEventListener('click', closeModal);
+
+        // When the user clicks anywhere outside of the modal content, close it
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                closeModal();
+            }
+        });
+
+        // Optional: Close modal with Escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>

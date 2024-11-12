@@ -1,0 +1,418 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Workout Plan - AI Image Describer</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif; /* Custom Font */
+            background-color: #000000; /* Pure Black Background */
+            color: #FFFFFF; /* White Text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            padding: 20px;
+        }
+        .container {
+            background-color: #1E1E1E; /* Darker Background for Contrast */
+            padding: 40px 30px;
+            border-radius: 15px;
+            max-width: 900px;
+            width: 100%;
+            position: relative;
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.2); /* Subtle blue shadow */
+            transition: transform 0.3s ease-in-out;
+            overflow-y: auto;
+            max-height: 100vh;
+        }
+        /* Back Link */
+        .back-link {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            color: #1E90FF;
+            text-decoration: none;
+            font-size: 1.2rem;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .back-link:hover {
+            color: #1C86EE; /* Slightly Darker Blue on hover */
+        }
+        /* Header */
+        .header {
+            font-size: 2rem;
+            margin-bottom: 30px;
+            text-align: center;
+        }
+        /* Days List */
+        .days-list {
+            list-style-type: none;
+            padding: 0;
+        }
+        .day-item {
+            background-color: #2C2C2C;
+            padding: 15px 20px;
+            margin-bottom: 15px;
+            border-radius: 10px;
+            cursor: pointer;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+        .day-item:hover {
+            background-color: #1C86EE; /* Slightly Darker Blue on hover */
+            transform: scale(1.02);
+        }
+        .day-number {
+            font-weight: bold;
+            margin-right: 10px;
+            color: #1E90FF;
+        }
+        /* Modal Styles */
+        .modal {
+            display: none; /* Hidden by default */
+            position: fixed; /* Stay in place */
+            z-index: 1000; /* Sit on top */
+            left: 0;
+            top: 0;
+            width: 100%; /* Full width */
+            height: 100%; /* Full height */
+            overflow: auto; /* Enable scroll if needed */
+            background-color: rgba(0, 0, 0, 0.8); /* Black w/ opacity */
+        }
+        .modal-content {
+            background-color: #1E1E1E;
+            margin: 5% auto; /* 5% from the top and centered */
+            padding: 20px;
+            border: 1px solid #888;
+            width: 90%;
+            max-width: 800px;
+            border-radius: 15px;
+            position: relative;
+            color: #FFFFFF;
+            max-height: 90vh;
+            overflow-y: auto;
+        }
+        /* Close Button */
+        .close-btn {
+            color: #FFFFFF;
+            position: absolute;
+            top: 10px;
+            right: 20px;
+            font-size: 2rem;
+            font-weight: bold;
+            cursor: pointer;
+            transition: color 0.3s;
+        }
+        .close-btn:hover {
+            color: #FF6347; /* Tomato color on hover */
+        }
+        /* Modal Titles */
+        .modal-title {
+            font-size: 1.8rem;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .exercise-section {
+            margin-bottom: 25px;
+        }
+        .exercise-title {
+            font-size: 1.2rem;
+            font-weight: bold;
+            color: #1E90FF;
+            margin-bottom: 5px;
+        }
+        .exercise-instructions, .exercise-sets, .exercise-reasoning {
+            margin-bottom: 10px;
+            line-height: 1.6;
+        }
+        .exercise-label {
+            font-weight: bold;
+            color: #FFD700; /* Gold color for labels */
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .modal-content {
+                width: 95%;
+                margin: 10% auto;
+            }
+            .header {
+                font-size: 1.5rem;
+            }
+            .day-item {
+                padding: 10px 15px;
+            }
+            .close-btn {
+                font-size: 1.5rem;
+                top: 5px;
+                right: 15px;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Back Link -->
+        <a href="javascript:history.back()" class="back-link">&#8592; Back</a>
+        
+        <div class="header">Workout Plan</div>
+        
+        <ul class="days-list">
+            <li class="day-item" data-day="1">
+                <span class="day-number">Day 1:</span> Lower Body Strength
+            </li>
+            <li class="day-item" data-day="2">
+                <span class="day-number">Day 2:</span> Core and Pelvic Floor
+            </li>
+            <li class="day-item" data-day="3">
+                <span class="day-number">Day 3:</span> Rest Day
+            </li>
+            <li class="day-item" data-day="4">
+                <span class="day-number">Day 4:</span> Upper Body Strength
+            </li>
+            <li class="day-item" data-day="5">
+                <span class="day-number">Day 5:</span> Core and Lower Body
+            </li>
+            <li class="day-item" data-day="6">
+                <span class="day-number">Day 6:</span> Pelvic Floor and Cardio
+            </li>
+            <li class="day-item" data-day="7">
+                <span class="day-number">Day 7:</span> Rest Day
+            </li>
+        </ul>
+    </div>
+
+    <!-- Modal Structure -->
+    <div id="day-modal" class="modal">
+        <div class="modal-content">
+            <span class="close-btn">&times;</span>
+            <div class="modal-title" id="modal-title"></div>
+            <div id="modal-body"></div>
+        </div>
+    </div>
+
+    <script>
+        // Data for each day
+        const workoutData = {
+            1: {
+                title: "Day 1: Lower Body Strength",
+                exercises: [
+                    {
+                        name: "1. Squats",
+                        instructions: "Stand with feet shoulder-width apart, hold a barbell across your upper back (or hands on hips if no weight), and lower into a squat until your thighs are parallel to the floor. Push through your heels to stand back up.",
+                        setsReps: "4 sets of 10 reps",
+                        reasoning: "Squats engage the lower body, core, and glutes, increasing blood flow to the pelvic region and helping boost testosterone due to the large muscle groups involved."
+                    },
+                    {
+                        name: "2. Lunges",
+                        instructions: "Stand upright, step one leg forward, lowering your hips until both knees are bent at about 90 degrees. Push back up and alternate legs.",
+                        setsReps: "3 sets of 12 reps per leg",
+                        reasoning: "Lunges activate glutes, hamstrings, and quads, enhancing pelvic stability and balance, which can improve endurance and support muscle tone for sexual performance."
+                    },
+                    {
+                        name: "3. Deadlifts",
+                        instructions: "Stand with feet hip-width apart, hold a barbell in front of your thighs, bend at the hips and knees, lowering the bar toward the ground, then lift it back up while engaging your core and glutes.",
+                        setsReps: "4 sets of 8 reps",
+                        reasoning: "Deadlifts strengthen the lower back, glutes, and hamstrings. This exercise boosts testosterone and builds lower body strength that enhances endurance."
+                    }
+                ]
+            },
+            2: {
+                title: "Day 2: Core and Pelvic Floor",
+                exercises: [
+                    {
+                        name: "1. Plank",
+                        instructions: "Get into a push-up position, but rest on your forearms. Hold your body in a straight line from head to heels.",
+                        setsReps: "3 sets of 45 seconds",
+                        reasoning: "Planks strengthen the core muscles that stabilize the body, which supports endurance and balance during physical activity, including sex."
+                    },
+                    {
+                        name: "2. Glute Bridge",
+                        instructions: "Lie on your back with knees bent, feet flat on the floor, and lift your hips toward the ceiling by engaging your glutes. Hold, then lower.",
+                        setsReps: "4 sets of 15 reps",
+                        reasoning: "Glute bridges activate the glutes, hamstrings, and lower back while improving blood flow to the pelvic area. This exercise is directly beneficial for pelvic strength and stability."
+                    },
+                    {
+                        name: "3. Kegel Exercises",
+                        instructions: "Tighten your pelvic floor muscles (like holding back urine) and hold for 5 seconds, then release. Perform lying down or sitting.",
+                        setsReps: "3 sets of 15 reps",
+                        reasoning: "Kegels specifically target pelvic floor muscles, which can enhance erection quality and control during sex. They support muscle tone and endurance."
+                    }
+                ]
+            },
+            3: {
+                title: "Day 3: Rest Day",
+                content: "<p><strong>Goal:</strong> Allow muscles to recover and repair. Rest days are crucial for hormone balance and muscle growth.</p>"
+            },
+            4: {
+                title: "Day 4: Upper Body Strength",
+                exercises: [
+                    {
+                        name: "1. Push-Ups",
+                        instructions: "Start in a high plank position, lower your body until your chest almost touches the floor, then push back up.",
+                        setsReps: "4 sets of 12 reps",
+                        reasoning: "Push-ups strengthen the chest, shoulders, and triceps, supporting upper body stability and endurance."
+                    },
+                    {
+                        name: "2. Dumbbell Rows",
+                        instructions: "Place one knee and hand on a bench, hold a dumbbell with the opposite hand, and pull the dumbbell toward your hip, squeezing the back muscles.",
+                        setsReps: "3 sets of 10 reps per side",
+                        reasoning: "Rows target the back muscles, contributing to overall strength and stamina."
+                    },
+                    {
+                        name: "3. Bicep Curls",
+                        instructions: "Stand with a dumbbell in each hand, arms at your sides, and curl the weights toward your shoulders.",
+                        setsReps: "3 sets of 12 reps",
+                        reasoning: "Bicep curls develop arm strength, which indirectly supports upper body endurance."
+                    }
+                ]
+            },
+            5: {
+                title: "Day 5: Core and Lower Body",
+                exercises: [
+                    {
+                        name: "1. Bicycle Crunches",
+                        instructions: "Lie on your back, bring knees up, and alternate bringing each knee to the opposite elbow.",
+                        setsReps: "4 sets of 20 reps per side",
+                        reasoning: "Bicycle crunches work the obliques and core, enhancing abdominal strength and stability."
+                    },
+                    {
+                        name: "2. Bulgarian Split Squats",
+                        instructions: "Place one foot on a bench behind you, lower into a squat with the other leg forward, then push back up.",
+                        setsReps: "3 sets of 10 reps per leg",
+                        reasoning: "Split squats isolate leg muscles while requiring balance, which can strengthen stabilizing muscles."
+                    },
+                    {
+                        name: "3. Leg Raises",
+                        instructions: "Lie flat, lift your legs to a 90-degree angle, then lower slowly without touching the floor.",
+                        setsReps: "3 sets of 12 reps",
+                        reasoning: "Leg raises build lower abs, enhancing core control and stability."
+                    }
+                ]
+            },
+            6: {
+                title: "Day 6: Pelvic Floor and Cardio",
+                exercises: [
+                    {
+                        name: "1. Kegels with Hold",
+                        instructions: "Perform a Kegel contraction, but hold for 10 seconds before releasing.",
+                        setsReps: "3 sets of 10 reps",
+                        reasoning: "Extended holds build endurance in the pelvic floor muscles, which helps with control during sexual activity."
+                    },
+                    {
+                        name: "2. Pelvic Thrusts",
+                        instructions: "Stand with feet shoulder-width apart, hands on your hips, and thrust your pelvis forward, engaging the glutes.",
+                        setsReps: "3 sets of 15 reps",
+                        reasoning: "Pelvic thrusts increase flexibility and strength in the hip area, aiding in smooth, controlled movements and endurance."
+                    },
+                    {
+                        name: "3. 20-Minute Jog or Brisk Walk",
+                        instructions: "Go for a light run or brisk walk, focusing on steady breathing.",
+                        setsReps: "20 minutes",
+                        reasoning: "Cardiovascular exercise improves circulation and stamina, which can enhance overall performance."
+                    }
+                ]
+            },
+            7: {
+                title: "Day 7: Rest Day",
+                content: "<p><strong>Goal:</strong> Give the body time to recover, helping to maintain hormone balance and rebuild muscles.</p>"
+            }
+        };
+
+        // Get modal elements
+        const modal = document.getElementById('day-modal');
+        const modalTitle = document.getElementById('modal-title');
+        const modalBody = document.getElementById('modal-body');
+        const closeBtn = document.querySelector('.close-btn');
+
+        // Function to open modal with specific content
+        function openModal(dayNumber) {
+            const dayData = workoutData[dayNumber];
+            if (!dayData) return;
+
+            modalTitle.textContent = dayData.title;
+
+            // Clear previous content
+            modalBody.innerHTML = '';
+
+            if (dayNumber === 3 || dayNumber === 7) {
+                // Rest Day: Display content directly
+                modalBody.innerHTML = dayData.content;
+            } else {
+                // Days with exercises
+                dayData.exercises.forEach(exercise => {
+                    const exerciseSection = document.createElement('div');
+                    exerciseSection.classList.add('exercise-section');
+
+                    const exerciseTitle = document.createElement('div');
+                    exerciseTitle.classList.add('exercise-title');
+                    exerciseTitle.textContent = exercise.name;
+
+                    const instructions = document.createElement('div');
+                    instructions.classList.add('exercise-instructions');
+                    instructions.innerHTML = `<span class="exercise-label">Instructions:</span> ${exercise.instructions}`;
+
+                    const setsReps = document.createElement('div');
+                    setsReps.classList.add('exercise-sets');
+                    setsReps.innerHTML = `<span class="exercise-label">Sets/Reps:</span> ${exercise.setsReps}`;
+
+                    const reasoning = document.createElement('div');
+                    reasoning.classList.add('exercise-reasoning');
+                    reasoning.innerHTML = `<span class="exercise-label">Reasoning:</span> ${exercise.reasoning}`;
+
+                    exerciseSection.appendChild(exerciseTitle);
+                    exerciseSection.appendChild(instructions);
+                    exerciseSection.appendChild(setsReps);
+                    exerciseSection.appendChild(reasoning);
+
+                    modalBody.appendChild(exerciseSection);
+                });
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // Function to close modal
+        function closeModal() {
+            modal.style.display = 'none';
+        }
+
+        // Add event listeners to all day items
+        const dayItems = document.querySelectorAll('.day-item');
+        dayItems.forEach(item => {
+            item.addEventListener('click', () => {
+                const dayNumber = item.getAttribute('data-day');
+                openModal(dayNumber);
+            });
+        });
+
+        // When the user clicks on <span> (x), close the modal
+        closeBtn.addEventListener('click', closeModal);
+
+        // When the user clicks anywhere outside of the modal content, close it
+        window.addEventListener('click', (event) => {
+            if (event.target == modal) {
+                closeModal();
+            }
+        });
+
+        // Optional: Close modal with Escape key
+        window.addEventListener('keydown', (event) => {
+            if (event.key === 'Escape') {
+                closeModal();
+            }
+        });
+    </script>
+
+</body>
+</html>
