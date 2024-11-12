@@ -12,13 +12,13 @@ dotenv.config();
 
 // Initialize Express app
 const app = express();
-const port = process.env.PORT || 5001;
+const port = process.env.PORT || 10000;
 
 // Middleware Configuration
 
 // Enable CORS (Adjust the origin as needed)
 app.use(cors({
-    origin: 'http://localhost:5001', // Adjust if front-end is served from a different origin
+    origin: 'http://localhost:10000', // Adjust if front-end is served from a different origin
     credentials: true
 }));
 
