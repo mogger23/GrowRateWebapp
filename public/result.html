@@ -430,55 +430,52 @@
                 alert('Please select an image to upload.');
                 return;
             }
-        
+
             const formData = new FormData();
             formData.append('image', selectedFile);
-        
+
             try {
                 // Show loading state
                 const button = document.getElementById('submit-btn');
                 button.disabled = true;
                 button.textContent = 'Processing...';
-        
+
                 // Send the image to the backend for preprocessing and scoring
                 const response = await fetch('/describe', { // Use relative path since front-end is served by back-end
                     method: 'POST',
                     body: formData
                 });
-        
+
                 const data = await response.json();
-        
+
                 if (response.ok) {
                     // Parse the comma-separated numbers
-                    let [firstNumber, secondNumber] = data.score.split(',').map(Number);
-        
-                    // Add 15 to the first number and cap it at 100
-                    firstNumber = Math.min(firstNumber + 15, 100);
-        
+                    const [firstNumber, secondNumber] = data.score.split(',').map(Number);
+
                     // Get the category information
                     const { title, straightTalk, steamyStuff, bgClass } = getCategoryInfo(secondNumber);
-        
+
                     // Set the category title and rating
                     document.getElementById('result-title').textContent = title;
                     document.getElementById('rating-number').textContent = firstNumber;
-        
+
                     // Update the current rating in the navigation bar
                     document.getElementById('current-rating').textContent = firstNumber;
-        
+
                     // Set the descriptions
                     document.getElementById('straight-talk').innerHTML = `<div class="description-title">The Straight Talk:</div> ${straightTalk}`;
                     document.getElementById('steamy-stuff').innerHTML = `<div class="description-title">The Steamy Stuff:</div> ${steamyStuff}`;
-        
+
                     // Apply the background based on the title
                     document.getElementById('result-container').className = `result-container ${bgClass}`;
-        
+
                     // Hide the upload screen and show the results screen
                     document.querySelector('.container').style.display = 'none';
                     document.getElementById('result-screen').style.display = 'block';
                 } else {
                     alert(data.error || 'An error occurred while processing your image.');
                 }
-        
+
             } catch (error) {
                 console.error('Error:', error);
                 alert('An error occurred while processing your image.');
@@ -489,7 +486,6 @@
                 button.textContent = 'Submit Image for Rating';
             }
         }
-
 
         /**
          * Retrieve category information based on the rating number.
