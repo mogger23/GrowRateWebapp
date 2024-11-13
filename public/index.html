@@ -41,6 +41,7 @@
             cursor: pointer;
             transition: color 0.3s, transform 0.2s;
             color: #FFFFFF;
+            display: none; /* Hidden by default, shown in steps after intro */
         }
         .back-arrow:hover {
             color: #1E90FF; /* Blue on hover */
@@ -72,6 +73,73 @@
             font-weight: 600;
             color: #FFFFFF;
             animation: fadeInDown 0.5s ease forwards;
+        }
+        /* Intro Step Styles */
+        .intro-step {
+            display: none;
+            opacity: 0;
+            animation: fadeInUp 0.5s forwards;
+            text-align: center;
+        }
+        .intro-step.active {
+            display: block;
+        }
+        .intro-point {
+            opacity: 0;
+            transform: translateY(20px);
+            animation: fadeInUp 0.5s forwards;
+            margin: 15px 0;
+        }
+        .intro-point:nth-child(1) {
+            animation-delay: 0.3s;
+        }
+        .intro-point:nth-child(2) {
+            animation-delay: 0.6s;
+        }
+        .intro-point:nth-child(3) {
+            animation-delay: 0.9s;
+        }
+        .intro-point:nth-child(4) {
+            animation-delay: 1.2s;
+        }
+        .intro-point:nth-child(5) {
+            animation-delay: 1.5s;
+        }
+        .get-started-btn {
+            background: linear-gradient(45deg, #1E90FF, #00BFFF);
+            background-size: 200% 200%;
+            color: #FFFFFF;
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 25px;
+            cursor: pointer;
+            transition: background-position 0.5s, transform 0.2s, box-shadow 0.3s;
+            width: 100%;
+            max-width: 300px;
+            margin: 30px auto 0 auto;
+            display: block;
+            position: relative;
+            overflow: hidden;
+            outline: none;
+        }
+        .get-started-btn::after {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: rgba(255, 255, 255, 0.1);
+            transition: left 0.3s;
+        }
+        .get-started-btn:hover::after {
+            left: 100%;
+        }
+        .get-started-btn:hover {
+            background-position: right center;
+            box-shadow: 0 4px 15px rgba(30, 144, 255, 0.4);
+            transform: scale(1.02);
         }
         /* Step Sections */
         .step {
@@ -166,6 +234,7 @@
             position: relative;
             overflow: hidden;
             outline: none;
+            display: block;
         }
         .next-btn::after {
             content: '';
@@ -233,7 +302,7 @@
             .header {
                 font-size: 1.5rem;
             }
-            .option-btn, .next-btn {
+            .option-btn, .next-btn, .get-started-btn {
                 padding: 12px 20px;
                 font-size: 0.9rem;
             }
@@ -260,6 +329,17 @@
 
         <!-- Back Arrow -->
         <div class="back-arrow" id="back-arrow">&#8592;</div>
+
+        <!-- Intro Step -->
+        <div class="intro-step" id="intro">
+            <div class="header">Welcome to AI Image Describer</div>
+            <div class="intro-point">1. AI analyze your past</div>
+            <div class="intro-point">2. Submit your 🍆 pic</div>
+            <div class="intro-point">3. Secure AI analysis</div>
+            <div class="intro-point">4. Get your rating & nutrition and workout plan</div>
+            <div class="intro-point">5. Grow and enjoy 😃 </div>
+            <button class="get-started-btn" id="get-started">Get Started</button>
+        </div>
 
         <!-- Step 1: New Question -->
         <div class="step" id="step-1">
@@ -370,7 +450,7 @@
 
     <script>
         const progress = document.getElementById('progress');
-        const steps = document.querySelectorAll('.step');
+        const steps = document.querySelectorAll('.step, #intro');
         const totalSteps = steps.length;
         let currentStep = 0;
         const userData = {};
@@ -380,15 +460,21 @@
             steps.forEach((s, index) => {
                 if(index === step){
                     s.classList.add('active');
+                    // Show back arrow except for intro step
+                    if(step !== 0){
+                        document.getElementById('back-arrow').style.display = 'block';
+                    } else {
+                        document.getElementById('back-arrow').style.display = 'none';
+                    }
                 } else {
                     s.classList.remove('active');
                 }
             });
             // Update progress bar
-            progress.style.width = `${((step) / totalSteps) * 100}%`;
+            progress.style.width = `${((step) / (totalSteps - 1)) * 100}%`;
         }
 
-        // Initialize first step
+        // Initialize first step (intro)
         showStep(currentStep);
 
         // Function to handle option selection
@@ -420,59 +506,39 @@
         }
 
         // Event listeners for Next buttons
-        document.getElementById('next-1').addEventListener('click', () => {
-            currentStep = 1;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-2').addEventListener('click', () => {
-            currentStep = 2;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-3').addEventListener('click', () => {
-            currentStep = 3;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-4').addEventListener('click', () => {
-            currentStep = 4;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-5').addEventListener('click', () => {
-            currentStep = 5;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-6').addEventListener('click', () => {
-            currentStep = 6;
-            showStep(currentStep);
-        });
-
-        document.getElementById('next-7').addEventListener('click', () => {
-            const heightFeet = document.getElementById('height-feet').value.trim();
-            const heightInches = document.getElementById('height-inches').value.trim();
-            if (heightFeet && heightInches && heightFeet >=1 && heightFeet <=9 && heightInches >=0 && heightInches <=11) {
-                userData['step7'] = `${heightFeet}ft ${heightInches}in`;
-                currentStep = 7;
-                showStep(currentStep);
-            } else {
-                alert('Please enter a valid height. Feet: 1-9, Inches: 0-11.');
+        for(let i =1; i<=8; i++){
+            const nextBtn = document.getElementById(`next-${i}`);
+            if(nextBtn){
+                nextBtn.addEventListener('click', () => {
+                    if(i ===7){
+                        // Handle height input
+                        const heightFeet = document.getElementById('height-feet').value.trim();
+                        const heightInches = document.getElementById('height-inches').value.trim();
+                        if (heightFeet && heightInches && heightFeet >=1 && heightFeet <=9 && heightInches >=0 && heightInches <=11) {
+                            userData['step7'] = `${heightFeet}ft ${heightInches}in`;
+                            currentStep = 8; // Advance to step 8
+                            showStep(currentStep);
+                        } else {
+                            alert('Please enter a valid height. Feet: 1-9, Inches: 0-11.');
+                        }
+                    } else if(i ===8){
+                        // Handle weight input
+                        const weight = document.getElementById('weight').value.trim();
+                        if (weight && weight >= 10 && weight <= 1000) {
+                            userData['step8'] = weight;
+                            // Redirect to upload.html with user data as query parameters
+                            const params = new URLSearchParams(userData);
+                            window.location.href = `upload.html?${params.toString()}`;
+                        } else {
+                            alert('Please enter a valid weight between 10 lbs and 1000 lbs.');
+                        }
+                    } else {
+                        currentStep = i +1; // Advance to the next step
+                        showStep(currentStep);
+                    }
+                });
             }
-        });
-
-        document.getElementById('next-8').addEventListener('click', () => {
-            const weight = document.getElementById('weight').value.trim();
-            if (weight && weight >= 10 && weight <= 1000) {
-                userData['step8'] = weight;
-                // Redirect to index.html with user data as query parameters
-                const params = new URLSearchParams(userData);
-                window.location.href = `upload.html?${params.toString()}`;
-            } else {
-                alert('Please enter a valid weight between 10 lbs and 1000 lbs.');
-            }
-        });
+        }
 
         // Event listener for Back arrow
         document.getElementById('back-arrow').addEventListener('click', () => {
@@ -511,6 +577,12 @@
                 nextBtn.disabled = true;
             }
         }
+
+        // Event listener for Get Started button in intro
+        document.getElementById('get-started').addEventListener('click', () => {
+            currentStep = 1; // Move to step 1
+            showStep(currentStep);
+        });
     </script>
 
 </body>
