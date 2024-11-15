@@ -2,8 +2,5 @@
   publish = "public"
   command = "npm run build"
 
-[redirects]
-  /*    /index.html   200
-
 [site]
   base = "https://rateurwilly.netlify.app/" 
