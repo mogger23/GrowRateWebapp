@@ -1,0 +1,33 @@
+# .github/workflows/deploy.yml
+name: Deploy Server
+
+on:
+  push:
+    branches:
+      - main
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Set up Node.js
+        uses: actions/setup-node@v2
+        with:
+          node-version: '14'
+
+      - name: Install dependencies
+        run: npm install
+
+      - name: Build and Deploy
+        env:
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          PORT: ${{ secrets.PORT }} # If you have other secrets
+        run: |
+          # Add your deployment commands here, e.g., deploying to Heroku, AWS, etc.
+          # Example for Heroku:
+          # heroku config:set OPENAI_API_KEY=${OPENAI_API_KEY}
+          # git push heroku main
