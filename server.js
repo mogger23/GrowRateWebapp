@@ -7,8 +7,10 @@ const cors = require('cors');
 const sharp = require('sharp');
 const path = require('path');
 
-// Load environment variables from .env file
-dotenv.config();
+// Load environment variables from .env file only in development
+if (process.env.NODE_ENV !== 'production') {
+    dotenv.config();
+}
 
 // Initialize Express app
 const app = express();
@@ -88,7 +90,11 @@ const encodeImage = (buffer) => {
  * @returns {string} - The score returned by GPT-4o.
  */
 const sendImageToGPT4o = async (base64Image) => {
-    const api_key = process.env.OPENAI_API_KEY; // Ensure your API key is in the .env file
+    const api_key = process.env.OPENAI_API_KEY; // Ensure your API key is in the environment variables
+    if (!api_key) {
+        throw new Error('OpenAI API key is not defined in the environment variables.');
+    }
+
     const headers = {
         "Content-Type": "application/json",
         "Authorization": `Bearer ${api_key}`
