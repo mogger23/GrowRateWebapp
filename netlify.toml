@@ -1,6 +1,4 @@
-[build]
-  publish = "public"
-  command = "npm run build"
+
 
 [site]
   base = "https://rateurwilly.netlify.app/" 
