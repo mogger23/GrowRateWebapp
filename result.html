@@ -1,0 +1,561 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Describer - Your Ratings</title>
+    <!-- Google Fonts -->
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        /* Reset and Basic Styles */
+        * {
+            box-sizing: border-box;
+            margin: 0;
+            padding: 0;
+        }
+        body {
+            font-family: 'Roboto', sans-serif; /* Custom Font */
+            background-color: #000000; /* Pure Black Background */
+            color: #FFFFFF; /* White Text */
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+        }
+        .container {
+            background-color: #1E1E1E; /* Darker Background for Contrast */
+            padding: 60px 40px 40px 40px; /* Consistent Padding */
+            border-radius: 15px;
+            max-width: 800px;
+            width: 90%;
+            position: relative;
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.2); /* Subtle blue shadow */
+            transition: transform 0.3s ease-in-out;
+        }
+        /* Back Arrow */
+        .back-arrow {
+            position: absolute;
+            top: 20px;
+            left: 20px;
+            font-size: 1.5rem;
+            cursor: pointer;
+            transition: color 0.3s;
+            color: #FFFFFF;
+        }
+        .back-arrow:hover {
+            color: #1E90FF; /* Blue on hover */
+        }
+        /* Header */
+        .header {
+            font-size: 2rem;
+            margin-bottom: 20px;
+            text-align: center;
+        }
+        /* Success Message */
+        .success-message {
+            display: none;
+            background-color: #4CAF50; /* Green Background */
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .success-message.show {
+            display: block;
+            opacity: 1;
+        }
+        /* Image Uploaded Message */
+        .upload-success {
+            display: none;
+            background-color: #1E90FF; /* Blue Background */
+            padding: 15px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            text-align: center;
+            transition: opacity 0.5s ease-in-out;
+        }
+        .upload-success.show {
+            display: block;
+            opacity: 1;
+        }
+        /* Upload Section */
+        .upload-box {
+            border: 2px dashed #1E90FF; /* Blue Dashed Border */
+            padding: 30px;
+            border-radius: 10px;
+            display: inline-block;
+            margin-bottom: 20px;
+            width: 100%;
+            max-width: 600px;
+            background-color: #000000; /* Black Background */
+            transition: background-color 0.3s, border-color 0.3s;
+        }
+        .upload-box:hover {
+            background-color: rgba(30, 144, 255, 0.1); /* Light Blue on hover */
+            border-color: #1C86EE;
+        }
+        .upload-box input[type="file"] {
+            display: none;
+        }
+        .upload-box label {
+            cursor: pointer;
+            background: #1E90FF; /* Blue Background */
+            padding: 15px 30px;
+            border-radius: 25px; /* Rounded Oval */
+            transition: background 0.3s, transform 0.2s;
+            display: inline-block;
+            color: #FFFFFF;
+            font-size: 1rem;
+        }
+        .upload-box label:hover {
+            background: #1C86EE; /* Slightly Darker Blue on hover */
+            transform: scale(1.05);
+        }
+        /* Submit Button */
+        .submit-btn {
+            background-color: #1E90FF; /* Blue Background */
+            border: none;
+            padding: 15px 30px;
+            font-size: 1rem;
+            border-radius: 25px; /* Rounded Oval */
+            cursor: pointer;
+            color: #FFFFFF; /* White Text */
+            margin-top: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+            display: none; /* Initially hidden */
+            width: 100%;
+            max-width: 300px;
+        }
+        .submit-btn:hover {
+            background-color: #1C86EE; /* Slightly Darker Blue on hover */
+            transform: scale(1.02); /* Slight Scale on hover */
+        }
+        .submit-btn:disabled {
+            background-color: #555555; /* Gray Background when disabled */
+            cursor: not-allowed;
+            transform: scale(1);
+        }
+        /* Result Screen */
+        .result-screen {
+            display: none;
+            padding: 20px;
+            width: 100%;
+            max-width: 800px;
+            margin: 0 auto;
+            background-color: #1E1E1E; /* Matching Container Background */
+            border-radius: 15px;
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.2); /* Subtle blue shadow */
+        }
+        .result-container {
+            max-width: 600px;
+            margin: 0 auto;
+            padding: 20px;
+            border-radius: 15px;
+            color: #FFFFFF;
+            background-color: rgba(30, 144, 255, 0.1); /* Semi-transparent Blue Background */
+            transition: background 0.3s;
+        }
+        .result-title {
+            font-size: 2rem;
+            margin-bottom: 10px;
+            text-transform: uppercase;
+            text-align: center;
+        }
+        .rating-number {
+            font-size: 4rem;
+            margin: 20px 0;
+            text-align: center;
+            color: #FFFFFF; /* Changed from #1E90FF to white */
+            text-shadow: 2px 2px 4px rgba(0, 0, 0, 0.5); /* Added shadow for better visibility */
+            font-weight: bold; /* Added bold weight */
+        }
+        /* Responsive adjustment for rating number */
+        @media (max-width: 600px) {
+            .rating-number {
+                font-size: 3rem;
+            }
+        }
+        /* Description Section */
+        .description-section {
+            text-align: left;
+            font-size: 1rem;
+            background-color: rgba(30, 144, 255, 0.2); /* Light Blue Background */
+            padding: 20px;
+            border-radius: 10px;
+            margin-top: 20px;
+        }
+        .description-title {
+            font-weight: bold;
+            font-size: 1.2rem;
+            margin-bottom: 10px;
+        }
+        /* Responsive Design */
+        @media (max-width: 600px) {
+            .header {
+                font-size: 1.5rem;
+            }
+            .result-title {
+                font-size: 1.5rem;
+            }
+            .rating-number {
+                font-size: 3rem;
+            }
+            .description-title {
+                font-size: 1rem;
+            }
+            .upload-box {
+                padding: 20px;
+            }
+            .upload-box label {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            .submit-btn {
+                padding: 12px 20px;
+                font-size: 0.9rem;
+            }
+            .back-arrow {
+                font-size: 1.2rem;
+            }
+        }
+        /* Gradient backgrounds based on title */
+        .tiny-serpent-bg { 
+            background: linear-gradient(135deg, #FF6B6B, #000000); /* Red gradient */
+        }
+        
+        .pencil-pusher-bg { 
+            background: linear-gradient(135deg, #4ECDC4, #000000); /* Turquoise gradient */
+        }
+        
+        .average-avocado-bg { 
+            background: linear-gradient(135deg, #96E6A1, #000000); /* Green gradient */
+        }
+        
+        .banana-bender-bg { 
+            background: linear-gradient(135deg, #FFD93D, #000000); /* Yellow gradient */
+        }
+        
+        .chub-cannon-bg { 
+            background: linear-gradient(135deg, #6C5CE7, #000000); /* Purple gradient */
+        }
+        
+        .king-cobra-bg { 
+            background: linear-gradient(135deg, #FF9F43, #000000); /* Orange gradient */
+        }
+        /* Privacy Note Styles */
+        .privacy-note {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(30, 144, 255, 0.1);
+            max-width: 300px;
+            line-height: 1.4;
+            margin-left: auto;
+            margin-right: auto;
+        }
+
+        .lock-icon {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+        /* Gradient backgrounds based on title */
+        /* ... [Existing gradient classes] ... */
+
+        /* Navigation Bar Styles */
+        .nav-bar {
+            display: flex;
+            justify-content: space-around;
+            align-items: center;
+            background-color: #2C2C2C; /* Slightly lighter than container */
+            padding: 15px 0;
+            border-radius: 10px 10px 0 0;
+            margin-bottom: 20px;
+        }
+
+        .nav-item {
+            color: #FFFFFF;
+            text-decoration: none;
+            font-size: 1rem;
+            padding: 10px 20px;
+            border-radius: 20px;
+            transition: background-color 0.3s, transform 0.2s;
+        }
+
+        .nav-item:hover {
+            background-color: #1C86EE; /* Slightly Darker Blue on hover */
+            transform: scale(1.05);
+        }
+
+        .nav-item.active {
+            background-color: #1E90FF; /* Active tab color */
+            font-weight: bold;
+        }
+
+        /* Responsive Adjustment for Navigation Bar */
+        @media (max-width: 600px) {
+            .nav-bar {
+                flex-direction: column;
+            }
+
+            .nav-item {
+                width: 80%;
+                text-align: center;
+                margin: 5px 0;
+            }
+        }
+    </style>
+</head>
+<body>
+
+    <div class="container">
+        <!-- Back Arrow -->
+        <div class="back-arrow" id="back-arrow">&#8592;</div>
+        
+        <div class="header">AI Image Describer</div>
+        
+        <!-- Success Message -->
+        <div id="success-message" class="success-message">
+            Payment Successful! You can now upload your image for rating.
+        </div>
+
+        <!-- Image Uploaded Message -->
+        <div id="upload-success" class="upload-success">
+            Image Uploaded!
+        </div>
+        
+        <!-- Upload Section -->
+        <div id="upload-section">
+            <div class="upload-box">
+                <label for="file-upload">Select an image</label>
+                <input type="file" id="file-upload" accept="image/*" onchange="handleFileSelect(event)" disabled>
+            </div>
+
+            <!-- Submit Button (Visible After Payment) -->
+            <button id="submit-btn" class="submit-btn" onclick="describeImage()">Submit Image for Rating</button>
+            
+            <!-- Privacy Note -->
+            <div class="privacy-note">
+                <span class="lock-icon">🔒</span>
+                Your images are processed locally and never shared or stored.
+            </div>
+        </div>
+    </div>
+
+    <!-- Result Screen -->
+    <div id="result-screen" class="result-screen">
+        <!-- Navigation Bar -->
+        <div class="nav-bar">
+            <div class="nav-item active" id="nav-rating">Rating: <span id="current-rating">0</span></div>
+            <a href="daily_routine.html" class="nav-item">Daily Routine</a>
+            <a href="workout_plan.html" class="nav-item">Workout Plan</a>
+            <a href="nutrition_plan.html" class="nav-item">Nutrition Plan</a>
+        </div>
+
+        <div id="result-container" class="result-container">
+            <!-- Category Name -->
+            <div id="result-title" class="result-title"></div>
+
+            <!-- Rating Number -->
+            <div id="rating-number" class="rating-number"></div>
+
+            <!-- Descriptions -->
+            <div id="description-section" class="description-section">
+                <div id="straight-talk" class="straight-talk"></div>
+                <div id="steamy-stuff" class="steamy-stuff"></div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        let selectedFile;
+
+        /**
+         * Check if the user has completed payment by looking for the 'paid=true' query parameter.
+         * If found, enable the image upload field and display the submit button.
+         */
+        function checkPaymentStatus() {
+            const urlParams = new URLSearchParams(window.location.search);
+            if (urlParams.get('paid') === 'true') {
+                // Show success message
+                document.getElementById('success-message').classList.add('show');
+                // Enable the file upload input
+                const fileInput = document.getElementById('file-upload');
+                fileInput.disabled = false;
+                // Show the submit button
+                document.getElementById('submit-btn').style.display = 'inline-block';
+                // Optionally, remove the query parameter from the URL without reloading the page
+                window.history.replaceState({}, document.title, window.location.pathname);
+            } else {
+                // If 'paid=true' is not present, redirect back to the main page
+                window.location.href = 'index.html';
+            }
+        }
+
+        /**
+         * Handle file selection and display "Image Uploaded!" message.
+         */
+        function handleFileSelect(event) {
+            const file = event.target.files[0];
+            if (file) {
+                selectedFile = file;
+                // Show "Image Uploaded!" message
+                const uploadSuccess = document.getElementById('upload-success');
+                uploadSuccess.classList.add('show');
+                // Optionally, hide the message after a few seconds
+                setTimeout(() => {
+                    uploadSuccess.classList.remove('show');
+                }, 3000);
+                // Enable the submit button if not already enabled
+                const submitBtn = document.getElementById('submit-btn');
+                if (submitBtn.disabled) {
+                    submitBtn.disabled = false;
+                }
+            }
+        }
+
+        /**
+         * Send the uploaded image to the backend for processing and retrieve the rating.
+         */
+        async function describeImage() {
+            if (!selectedFile) {
+                alert('Please select an image to upload.');
+                return;
+            }
+
+            const formData = new FormData();
+            formData.append('image', selectedFile);
+
+            try {
+                // Show loading state
+                const button = document.getElementById('submit-btn');
+                button.disabled = true;
+                button.textContent = 'Processing...';
+
+                // Send the image to the backend for preprocessing and scoring
+                const response = await fetch('/describe', { // Use relative path since front-end is served by back-end
+                    method: 'POST',
+                    body: formData
+                });
+
+                const data = await response.json();
+
+                if (response.ok) {
+                    // Parse the comma-separated numbers
+                    const [firstNumber, secondNumber] = data.score.split(',').map(Number);
+
+                    // Get the category information
+                    const { title, straightTalk, steamyStuff, bgClass } = getCategoryInfo(secondNumber);
+
+                    // Set the category title and rating
+                    document.getElementById('result-title').textContent = title;
+                    document.getElementById('rating-number').textContent = firstNumber;
+
+                    // Update the current rating in the navigation bar
+                    document.getElementById('current-rating').textContent = firstNumber;
+
+                    // Set the descriptions
+                    document.getElementById('straight-talk').innerHTML = `<div class="description-title">The Straight Talk:</div> ${straightTalk}`;
+                    document.getElementById('steamy-stuff').innerHTML = `<div class="description-title">The Steamy Stuff:</div> ${steamyStuff}`;
+
+                    // Apply the background based on the title
+                    document.getElementById('result-container').className = `result-container ${bgClass}`;
+
+                    // Hide the upload screen and show the results screen
+                    document.querySelector('.container').style.display = 'none';
+                    document.getElementById('result-screen').style.display = 'block';
+                } else {
+                    alert(data.error || 'An error occurred while processing your image.');
+                }
+
+            } catch (error) {
+                console.error('Error:', error);
+                alert('An error occurred while processing your image.');
+            } finally {
+                // Reset button state
+                const button = document.getElementById('submit-btn');
+                button.disabled = false;
+                button.textContent = 'Submit Image for Rating';
+            }
+        }
+
+        /**
+         * Retrieve category information based on the rating number.
+         * @param {number} number - The rating number to determine the category.
+         * @returns {object} - An object containing title, descriptions, and background class.
+         */
+        function getCategoryInfo(number) {
+            if (number >= 0 && number <= 20) {
+                return {
+                    title: "Tiny Serpent",
+                    straightTalk: "A thin, wiry creature that slithers about like a snake in the grass. It's quick to hide but delicate in its movements. Small in stature, yet swift and nimble, it's the kind of serpent that moves fast but leaves little behind.",
+                    steamyStuff: "Oh honey, it's small, but it's got a charm all its own. It sneaks up on you, light as a feather, with a soft and tender touch. You may not feel the weight, but the sensation is enough to send shivers down your spine, if only for a moment.",
+                    bgClass: "tiny-serpent-bg"
+                };
+            } else if (number >= 21 && number <= 40) {
+                return {
+                    title: "Pencil Pusher",
+                    straightTalk: "Straight and narrow, this one’s got the precision of a pen on paper. Thin but determined, it knows its path and doesn’t waver. Don’t expect it to take up much space, but it’s more than ready to make its mark.",
+                    steamyStuff: "It’s slender, yet confident. It slides in like a whisper but lingers just long enough to leave a trace. You might not expect it to fill you up, but it knows just where to hit, drawing lines on your body like it’s writing poetry.",
+                    bgClass: "pencil-pusher-bg"
+                };
+            } else if (number >= 41 && number <= 60) {
+                return {
+                    title: "Average Avocado",
+                    straightTalk: "A solid, standard contender with the bulk to satisfy but nothing that’ll overwhelm. It’s smooth, round, and easygoing, with enough weight to make its presence known. The middle ground where form meets function.",
+                    steamyStuff: "Firm and filling in just the right way, it’s the kind that’s a pleasure to hold. It fills you up just enough without ever crossing into uncomfortable territory. You’ll leave feeling content and more than a little pleased.",
+                    bgClass: "average-avocado-bg"
+                };
+            } else if (number >= 61 && number <= 80) {
+                return {
+                    title: "Banana Bender",
+                    straightTalk: "A thick, curved creation with a wild side. It’s got a bend to it that keeps things interesting, thick enough to feel in every corner. It’s the kind of banana that takes its time, bending to meet your every need.",
+                    steamyStuff: "It’s thick, it’s curved, and it knows how to hit every spot just right. It fills you up, curving in deep with every push, making you gasp for more. You’ll be gripping onto the sheets and begging for it to stay just a little longer.",
+                    bgClass: "banana-bender-bg"
+                };
+            } else if (number >= 81 && number <= 90) {
+                return {
+                    title: "Chub Cannon",
+                    straightTalk: "This cannon comes loaded and ready to fire. Thick as a brick and straight as an arrow, it’s the kind that demands attention. No frills, just pure, solid mass that hits you like a wave and keeps on coming.",
+                    steamyStuff: "It’s big, thick, and relentless. When it’s in, you know it’s there, and it doesn’t leave room for anything else. It’s all-consuming, pushing deeper with every thrust until you’re left gasping, your body full, your mind blown.",
+                    bgClass: "chub-cannon-bg"
+                };
+            } else if (number >= 91 && number <= 100) {
+                return {
+                    title: "King Cobra",
+                    straightTalk: "The King Cobra reigns supreme, large and imposing, thick as a tree trunk with a dangerous allure. When it rises, all attention is on it, filling the room with its powerful presence. It’s the apex predator of the serpent world.",
+                    steamyStuff: "You’ll feel every inch of its dominance as it slides in, slowly at first, stretching you wide. It fills you completely, taking over your senses until there’s nothing left but the feeling of pure, primal power. You’ll be left shaking, satisfied beyond belief.",
+                    bgClass: "king-cobra-bg"
+                };
+            }
+            return {
+                title: "Unknown",
+                straightTalk: "No straight talk available.",
+                steamyStuff: "No steamy stuff available.",
+                bgClass: ""
+            };
+        }
+
+        /**
+         * Call the payment status check on page load.
+         */
+        window.onload = checkPaymentStatus;
+
+        /**
+         * Event listener for Back arrow to navigate back to the main page or previous step.
+         */
+        document.getElementById('back-arrow').addEventListener('click', () => {
+            window.location.href = 'index.html';
+        });
+    </script>
+
+</body>
+</html>
