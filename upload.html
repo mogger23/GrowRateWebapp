@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>AI Image Describer - Upload Image</title>
+    <link href="https://fonts.googleapis.com/css2?family=Roboto:wght@400;700&display=swap" rel="stylesheet">
+    <style>
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        body {
+            font-family: 'Roboto', sans-serif;
+            background-color: #000000;
+            color: #FFFFFF;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            position: relative;
+        }
+        .container {
+            background-color: #000000;
+            padding: 60px 40px 40px;
+            border-radius: 15px;
+            max-width: 600px;
+            width: 90%;
+            box-shadow: 0 0 20px rgba(30, 144, 255, 0.2);
+        }
+        .back-arrow {
+            position: absolute; top: 20px; left: 20px; font-size: 1.5rem; cursor: pointer; transition: color 0.3s;
+        }
+        .back-arrow:hover { color: #1E90FF; }
+        .progress-bar {
+            position: absolute; top: 0; left: 0; height: 8px; width: 100%;
+            background: linear-gradient(to right, #000000, #1E90FF);
+            border-top-left-radius: 15px;
+            border-top-right-radius: 15px;
+            overflow: hidden;
+        }
+        .progress { height: 100%; background-color: #1E90FF; width: 100%; transition: width 0.5s ease; }
+        .header { font-size: 1.8rem; margin-bottom: 30px; text-align: center; }
+        .upload-section {
+            display: flex; flex-direction: column; align-items: center; gap: 20px;
+        }
+        .upload-btn, .next-btn {
+            border-radius: 50px; padding: 15px 30px; cursor: pointer; width: 100%; max-width: 300px;
+            text-align: center; transition: all 0.3s ease;
+        }
+        .upload-btn {
+            background-color: #1E1E1E; color: #1E90FF; border: 2px solid #1E90FF;
+        }
+        .upload-btn:hover { background-color: rgba(30, 144, 255, 0.2); }
+        .next-btn {
+            background-color: #1E90FF; color: #FFFFFF; font-size: 1rem;
+        }
+        .next-btn:hover { background-color: #1C86EE; transform: scale(1.02); }
+        .next-btn:disabled { background-color: #555555; cursor: not-allowed; transform: scale(1); }
+        .upload-message { font-size: 1rem; color: #1E90FF; margin-top: 10px; display: none; text-align: center; }
+        .loading-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%; display: none;
+            background-color: rgba(0, 0, 0, 0.9); flex-direction: column; justify-content: center; align-items: center;
+            z-index: 1000; padding: 20px; text-align: center;
+        }
+        .spinner {
+            border: 8px solid #f3f3f3; border-top: 8px solid #1E90FF; border-radius: 50%; width: 60px; height: 60px;
+            animation: spin 1s linear infinite, pulse 1s ease-in-out infinite alternate;
+            margin-bottom: 20px;
+        }
+        @keyframes spin { 0% { transform: rotate(0deg); } 100% { transform: rotate(360deg); } }
+        @keyframes pulse { 0% { box-shadow: 0 0 10px rgba(30, 144, 255, 0.3); } 100% { box-shadow: 0 0 30px rgba(30, 144, 255, 0.8); } }
+        .loading-message {
+            font-size: 1.2rem; color: #FFFFFF; opacity: 0; transition: opacity 0.5s ease-in-out;
+            text-shadow: 0 0 10px rgba(30, 144, 255, 0.6);
+        }
+        .loading-message.active { opacity: 1; }
+        .privacy-note {
+            margin-top: 20px;
+            color: rgba(255, 255, 255, 0.7);
+            font-size: 0.9rem;
+            text-align: center;
+            padding: 10px;
+            border-radius: 8px;
+            background: rgba(30, 144, 255, 0.1);
+            max-width: 300px;
+            line-height: 1.4;
+        }
+
+        .lock-icon {
+            margin-right: 8px;
+            font-size: 1rem;
+        }
+
+        /* Responsive adjustment */
+        @media (max-width: 600px) {
+            .privacy-note {
+                font-size: 0.8rem;
+                padding: 8px;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="progress-bar"><div class="progress"></div></div>
+        <div class="back-arrow" id="back-arrow">&#8592;</div>
+        <div class="header">Upload Your Image</div>
+        <div class="upload-section">
+            <button class="upload-btn" id="upload-button">Choose Image</button>
+            <input type="file" id="file-input" accept="image/*">
+            <div class="upload-message" id="upload-message">Image Uploaded!</div>
+            <button class="next-btn" id="get-rating-btn" disabled>Get Rating</button>
+            <div class="privacy-note">
+                <span class="lock-icon">🔒</span>
+                Your images are processed locally and never shared or stored.
+            </div>
+        </div>
+    </div>
+
+    <div class="loading-screen" id="loading-screen" aria-live="assertive">
+        <div class="spinner"></div>
+        <div class="loading-messages"></div>
+    </div>
+
+    <script>
+        const uploadButton = document.getElementById('upload-button');
+        const fileInput = document.getElementById('file-input');
+        const getRatingBtn = document.getElementById('get-rating-btn');
+        const uploadMessage = document.getElementById('upload-message');
+        const loadingScreen = document.getElementById('loading-screen');
+
+        let selectedFile = null;
+
+        uploadButton.addEventListener('click', () => { fileInput.click(); });
+        fileInput.addEventListener('change', (event) => {
+            const file = event.target.files[0];
+            if (file && file.type.startsWith('image/')) {
+                selectedFile = file;
+                uploadMessage.style.display = 'block';
+                getRatingBtn.disabled = false;
+            } else {
+                alert('Please select a valid image file.');
+            }
+        });
+
+        getRatingBtn.addEventListener('click', async () => {
+            if (!selectedFile) return alert('Please select an image first.');
+            loadingScreen.style.display = 'flex';
+            
+            const messages = [
+                'Analyzing your information and goals...', 
+                'Analyzing your proportions...', 
+                'Selecting the most effective workout routine...',
+                'Optimizing your nutrition plan and super foods...', 
+                'Final analysis...'
+            ];
+
+            const messageContainer = document.querySelector('.loading-messages');
+            const messageElement = document.createElement('div');
+            messageElement.className = 'loading-message';
+            messageContainer.appendChild(messageElement);
+
+            for (let i = 0; i < messages.length; i++) {
+                messageElement.textContent = messages[i];
+                messageElement.classList.add('active');
+                await new Promise(resolve => setTimeout(resolve, 2000));
+                messageElement.classList.remove('active');
+                await new Promise(resolve => setTimeout(resolve, 300));
+            }
+
+            await new Promise(resolve => setTimeout(resolve, 1000));
+            window.location.href = 'https://buy.stripe.com/cN29Cr8z256Je6k8wz';
+        });
+
+        document.getElementById('back-arrow').addEventListener('click', () => {
+            window.location.href = 'onboarding.html';
+        });
+    </script>
+</body>
+</html>
